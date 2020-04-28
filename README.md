@@ -4,36 +4,59 @@
 
 ## What Is This?
 
-This project is a part of a collection of Python examples for working with kafka Streams via the [`Faust`](https://faust.readthedocs.io) library. This particular project contains a simple consumer implementation. The full suite of projects are the following:
+This project contains an example for working with Kafka Streams via the [`Faust`](https://faust.readthedocs.io) library. This particular project contains a simple read-only consumer implementation. The full suite of projects are the following:
 
 - [Producer](https://github.com/twosixlabs-dart/python-kafka-producer)
 - [Stream Processor](https://github.com/twosixlabs-dart/python-kafka-streams)
 - [Consumer](https://github.com/twosixlabs-dart/python-kafka-consumer) (this project)
 - [Environment](https://github.com/twosixlabs-dart/kafka-examples-docker)
 
-The environment is detailed more [here](#Getting-Started).
-
-The *consumer* in this example is an agent that subscribes to the `stream.out` topic for events. When it receives an event, it updates the payload and prints it to `stdout`. That is it! This project is relatively simple, and so the structure of the project is simple and may not entirely reflect a complex application/use of `Faust`.
+The *consumer* in this example is an agent that subscribes to some topic using SSL/SASL to consume and record events. When it receives an event it dumps the payload to a file. That is it!
 
 ## Getting Started
 
-Getting started with these examples requires a complete Kafka environment (with Zookeeper). The [Environment](https://github.com/twosixlabs-dart/kafka-examples-docker) project contains a docker-compose file for setting up everything. As this is a set of Python examples, just stand up the provided Python environment with:
+Getting started with this example requires a complete Kafka environment. [This project](https://github.com/twosixlabs-dart/kafka-examples-docker) contains a docker-compose file for setting up everything. You can use the configuration inputs to connect to a preexisting infrastructure if you have one already.
+
+If you do not have a Python installation ready, you can configure the input and then build the Dockerfile and run the resulting image with:
 
 ```shell
-docker-compose -f python.yml pull
-docker-compose -f python.yml up -d
+docker build -t python-kafka-consumer-local .
+docker run --env PROGRAM_ARGS=wm-sasl-example -it python-kafka-consumer-local:latest 
 ```
 
-This will pull down the images needed and begin running everything. You can observe what is going on by looking at the logs for each of the three Python components (either one at a time or in multiple terminals):
+### Configuration File & SASL/SSL
 
-```shell
-docker logs -f kafka-examples-docker_stream-processor_1
-docker logs -f kafka-examples-docker_producer
-docker logs -f kafka-examples-docker_consumer
+The code here is configured to use JSON resources found at the subpackage `pyconsumer.resources.env`. Your configuration must be found within the [pyconsumer/resources/env](pyconsumer/resources/env) directory. When specifying your own you may omit the `.json` extension; it will attempt to load it as it and if that fails will attempt to load it assuming a `.json` extension. The default is to point to the [wm-sasl-example](/pyconsumer/resources/env/wm-sasl-example.json) configuration (which contains mostly nothing). Here is the expected format of the input file:
+
+```json
+{
+    "broker": "",
+    "auth": {
+        "username": "",
+        "password": ""
+    },
+    "app": {
+        "id": "",
+        "auto_offset_reset": "",
+        "enable_auto_commit": false
+    },
+    "topic": {
+        "from": ""
+    },
+    "persist_dir": ""
+}
 ```
 
-The stream-processor and producer will only have some startup and debug output, but the consumer will show messages being send through to the consumer's `stdout`, containing breadcrumbs from the producer, then the stream-processor, and finally the consumer itself.
+* `broker` - the hostname + port of the Kafka broker
+* `auth`
+  * `username` - username for SASL authentication
+  * `password` - password for SASL authentication
+* `app`
+  * `id` - unique identifier for your application/group
+  * `auto_offset_reset` - set to either `earliest` or `latest` to determine where a *new* app should start consuming from
+  * `enable_auto_commit` - set to true to commit completed processing records
+* `topic`
+  * `from` - topic to consume from; currently only a single topic may be specified
+* `persist_dir` - unique to this example, this is used during processing for dumping received records to disk.
 
-## SSL/SASL
-
-Coming soon
+These options are subject to change/refinement, and others may be introduced in the future.

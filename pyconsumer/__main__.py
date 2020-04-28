@@ -1,2 +1,3 @@
-from pyconsumer.app import app
-app.main()
+import pyconsumer.app
+pyconsumer.app.create_app()
+pyconsumer.app.main()

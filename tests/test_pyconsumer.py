@@ -1,6 +1,16 @@
+import os
+os.environ['PROGRAM_ARGS'] = 'test.json'
+import pathlib
+import typing
 import pytest
-from pyconsumer.app import app
-from pyconsumer.messages.stream_message import StreamMessage
+import faust
+from pyconsumer.app import create_app
+
+
+app = create_app()
+
+
+SAMPLE_MESSAGE = {"key": "test1", "value": ["python-kafka-consumer"]}
 
 
 @pytest.fixture()
@@ -12,16 +22,11 @@ def basic_stream_processor(event_loop):
     return app
 
 
-@pytest.fixture()
-def sample_messages(event_loop):
-    sample_message_1 = StreamMessage(id='test1', breadcrumbs=[])
-    sample_message_2 = StreamMessage(id='test1', breadcrumbs=['python-kafka-consumer'])
-    return {'empty': sample_message_1, 'full': sample_message_2}
-
-
 @pytest.mark.asyncio()
-@pytest.mark.usefixtures('basic_stream_processor', 'sample_messages')
-async def test_event_update(mocker, basic_stream_processor, sample_messages):
+@pytest.mark.usefixtures('basic_stream_processor')
+async def test_event_update(mocker, basic_stream_processor):
     async with basic_stream_processor.agents['pyconsumer.streams.agents.stream_out'].test_context() as agent:
-        event = await agent.put(sample_messages['empty'])
-        assert agent.results[event.message.offset] == sample_messages['full']
+        await agent.put(key='sample', value=SAMPLE_MESSAGE)
+        testfile = pathlib.Path('sample.txt')
+        assert testfile.exists()
+        assert testfile.read_text() == '''{"key": "test1", "value": ["python-kafka-consumer"]}'''

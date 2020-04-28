@@ -1,18 +1,28 @@
-from faust import StreamT
-from pyconsumer.app import app
-from pyconsumer.messages.stream_message import StreamMessage
+import json
+from pathlib import Path
+from faust import Record, StreamT
+from pyconsumer import config
 
 
-# create topics
-stream_out_topic = app.topic('stream.out', value_type=StreamMessage)
+def write_cdr(persist_dir, key, value):
+    persist = Path(persist_dir) / (key + '.txt')
+    value = value.dumps().decode() if isinstance(value, Record) else json.dumps(value)
+    persist.write_text(value)
 
 
-# create an agent subscribed to the stream.out topic. this function receives
-# events, updates them, and then prints the event to stdout
-@app.agent(stream_out_topic)
-async def stream_out(stream: StreamT):
-    """Print the events to stdout"""
-    async for event in stream:
-        event.breadcrumbs.append('python-kafka-consumer')
-        print(f'event ID {event.id} with breadcrumbs {event.breadcrumbs}')
-        yield event
+def create_consumer(app):
+    # create topics
+    stream_out_topic = app.topic(config['topic']['from'], key_type=str, value_type=str)
+
+    # create an agent subscribed to the stream.out topic. this function
+    # receives events, updates them, and then prints the event to stdout
+    @app.agent(stream_out_topic)
+    async def stream_out(stream: StreamT):
+        """Print the events to stdout"""
+        auto_commit = config['app'].get('enable_auto_commit', False)
+        events = stream.events() if auto_commit else stream.noack().events()
+        async for event in events:
+            print(f'persisting {event.key}')
+            write_cdr(config['persist_dir'], event.key, event.value)
+            yield event
+
