@@ -33,3 +33,7 @@ docker logs -f kafka-examples-docker_consumer
 ```
 
 The stream-processor and producer will only have some startup and debug output, but the consumer will show messages being send through to the consumer's `stdout`, containing breadcrumbs from the producer, then the stream-processor, and finally the consumer itself.
+
+## SSL/SASL
+
+Coming soon
