@@ -15,18 +15,13 @@ The *consumer* in this example is an agent that subscribes to some topic using S
 
 ## Getting Started
 
-Getting started with this example requires a complete Kafka environment. [This project](https://github.com/twosixlabs-dart/kafka-examples-docker) contains a docker-compose file for setting up everything. You can use the configuration inputs to connect to a preexisting infrastructure if you have one already.
-
-If you do not have a Python installation ready, you can configure the input and then build the Dockerfile and run the resulting image with:
-
-```shell
-docker build -t python-kafka-consumer-local .
-docker run --env PROGRAM_ARGS=wm-sasl-example -it python-kafka-consumer-local:latest 
-```
+Getting started with this example requires a complete Kafka environment. If you are getting started completely from nothing, [this project](https://github.com/twosixlabs-dart/kafka-examples-docker) contains a docker-compose file for setting up everything. Alternatively you can use the configuration inputs to connect to a preexisting infrastructure if one is already available.
 
 ### Configuration File & SASL/SSL
 
-The code here is configured to use JSON resources found at the subpackage `pyconsumer.resources.env`. Your configuration must be found within the [pyconsumer/resources/env](pyconsumer/resources/env) directory. When specifying your own you may omit the `.json` extension; it will attempt to load it as it and if that fails will attempt to load it assuming a `.json` extension. The default is to point to the [wm-sasl-example](/pyconsumer/resources/env/wm-sasl-example.json) configuration (which contains mostly nothing). Here is the expected format of the input file:
+The code here is configured to use JSON resources found at the subpackage `pyconsumer.resources.env`. Your configuration must be found within the [pyconsumer/resources/env](pyconsumer/resources/env) directory.
+
+The default is to point to the [wm-sasl-example](/pyconsumer/resources/env/wm-sasl-example.json) configuration (which contains mostly nothing). Feel free to edit this file for any runs you make. Here is the expected format of the input file:
 
 ```json
 {
@@ -60,3 +55,40 @@ The code here is configured to use JSON resources found at the subpackage `pycon
 * `persist_dir` - unique to this example, this is used during processing for dumping received records to disk.
 
 These options are subject to change/refinement, and others may be introduced in the future.
+
+### Running the Application
+
+You have the option of running the application directly on your machine or within a Docker container.
+
+#### Directly
+
+Install dependencies:
+
+```shell
+python -m pip install -r requirements.txt
+```
+
+Execute:
+
+```shell
+python -m pyconsumer worker -l info
+```
+
+This will begin generating a substantial amount of output, including a number of "warnings" that data is being persisted. These warnings are expected and good! The output will then halt, as the application is waiting for more data to be sent to the topic. You can observe the documents in the `persist_dir` that was specified.
+
+#### Docker
+
+Build the Docker image:
+
+```shell
+docker build -t python-kafka-consumer-local .
+```
+
+Execute:
+
+```shell
+mkdir kafka_output
+docker run --env PROGRAM_ARGS=wm-sasl-example -it -v kafka_output:/opt/app/data python-kafka-consumer-local:latest
+```
+
+Here we are mapping a local directory `kafka_output` to the Docker directory that Kafka is configured to dump to. This will begin generating a substantial amount of output, including a number of "warnings" that data is being persisted. These warnings are expected and good! The output will then halt, as the application is waiting for more data to be sent to the topic. You can observe the documents in the `kafka_output` that was created locally on your machine.
