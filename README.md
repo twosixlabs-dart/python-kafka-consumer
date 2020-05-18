@@ -87,8 +87,8 @@ docker build -t python-kafka-consumer-local .
 Execute:
 
 ```shell
-mkdir kafka_output
-docker run --env PROGRAM_ARGS=wm-sasl-example -it -v kafka_output:/opt/app/data python-kafka-consumer-local:latest
+mkdir /home/user/kafka_output
+docker run --env PROGRAM_ARGS=wm-sasl-example -it -v /home/user/kafka_output:/opt/app/data python-kafka-consumer-local:latest
 ```
 
-Here we are mapping a local directory `kafka_output` to the Docker directory that Kafka is configured to dump to. This will begin generating a substantial amount of output, including a number of "warnings" that data is being persisted. These warnings are expected and good! The output will then halt, as the application is waiting for more data to be sent to the topic. You can observe the documents in the `kafka_output` that was created locally on your machine.
+Here we are mapping a local directory `kafka_output` to the Docker directory that Kafka is configured to dump to. Note this should be an absolute path, otherwise Docker will not treat the volume properly. This will begin generating a substantial amount of output, including a number of "warnings" that data is being persisted. These warnings are expected and good! The output will then halt, as the application is waiting for more data to be sent to the topic. You can observe the documents in the `kafka_output` that was created locally on your machine.
