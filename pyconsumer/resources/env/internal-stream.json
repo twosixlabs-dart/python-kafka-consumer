@@ -1,16 +1,12 @@
 {
-    "kafka.bootstrap.servers": "CHANGEME",
-    "auth": {
-        "username": "CHANGEME",
-        "password": "CHANGEME"
-    },
+    "kafka.bootstrap.servers": "_env_",
     "app": {
         "id": "CHANGEME",
         "auto_offset_reset": "earliest",
         "enable_auto_commit": false
     },
     "topic": {
-        "from": "CHANGEME"
+        "from": "dart.cdr.streaming.updates"
     },
     "persist.dir": "/opt/app/data"
 }

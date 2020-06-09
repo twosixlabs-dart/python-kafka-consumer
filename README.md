@@ -25,7 +25,7 @@ The default is to point to the [wm-sasl-example](/pyconsumer/resources/env/wm-sa
 
 ```json
 {
-    "broker": "",
+    "kafka.bootstrap.servers": "",
     "auth": {
         "username": "",
         "password": ""
@@ -38,11 +38,11 @@ The default is to point to the [wm-sasl-example](/pyconsumer/resources/env/wm-sa
     "topic": {
         "from": ""
     },
-    "persist_dir": ""
+    "persist.dir": ""
 }
 ```
 
-* `broker` - the hostname + port of the Kafka broker
+* `kafka.bootstrap.servers` - the hostname + port of the Kafka broker
 * `auth`
   * `username` - username for SASL authentication
   * `password` - password for SASL authentication
@@ -52,7 +52,7 @@ The default is to point to the [wm-sasl-example](/pyconsumer/resources/env/wm-sa
   * `enable_auto_commit` - set to true to commit completed processing records
 * `topic`
   * `from` - topic to consume from; currently only a single topic may be specified
-* `persist_dir` - unique to this example, this is used during processing for dumping received records to disk.
+* `persist.dir` - unique to this example, this is used during processing for dumping received records to disk.
 
 These options are subject to change/refinement, and others may be introduced in the future.
 
@@ -74,7 +74,7 @@ Execute:
 python -m pyconsumer worker -l info
 ```
 
-This will begin generating a substantial amount of output, including a number of "warnings" that data is being persisted. These warnings are expected and good! The output will then halt, as the application is waiting for more data to be sent to the topic. You can observe the documents in the `persist_dir` that was specified.
+This will begin generating a substantial amount of output, including a number of "warnings" that data is being persisted. These warnings are expected and good! The output will then halt, as the application is waiting for more data to be sent to the topic. You can observe the documents in the `persist.dir` that was specified.
 
 #### Docker
 
