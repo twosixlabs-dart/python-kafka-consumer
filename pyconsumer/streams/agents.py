@@ -23,6 +23,6 @@ def create_consumer(app):
         events = stream.events() if auto_commit else stream.noack().events()
         async for event in events:
             print(f'persisting {event.key}')
-            write_cdr(config['persist_dir'], event.key, event.value)
+            write_cdr(config['persist.dir'], event.key, event.value)
             yield event
 
