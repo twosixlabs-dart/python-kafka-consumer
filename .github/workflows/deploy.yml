@@ -30,4 +30,4 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         repository: twosixlabsdart/python-kafka-consumer
-        tags: latest,${{ github.event.release.tag_name }}
+        tags: latest
